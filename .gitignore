@@ -1,0 +1,8 @@
+.vscode/
+.idea/
+.DS_Store
+*.swp
+backend/vendor/
+frontend/node_modules/
+backend/var/
+frontend/.angular/
