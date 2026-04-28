@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\InvoiceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,37 +15,47 @@ class Invoice
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['invoice:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['invoice:read'])]
     private ?string $invoiceNumber = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['invoice:read'])]
     private ?string $status = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 12, scale: 2)]
+    #[Groups(['invoice:read'])]
     private ?string $totalAmountNet = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 12, scale: 2)]
+    #[Groups(['invoice:read'])]
     private ?string $totalAmountVat = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 12, scale: 2)]
+    #[Groups(['invoice:read'])]
     private ?string $totalAmountGross = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Groups(['invoice:read'])]
     private ?\DateTimeImmutable $invoiceDate = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Groups(['invoice:read'])]
     private ?\DateTimeImmutable $dueDate = null;
 
     #[ORM\ManyToOne(inversedBy: 'invoices')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['invoice:read'])]
     private ?Client $client = null;
 
     /**
      * @var Collection<int, InvoiceItem>
      */
     #[ORM\OneToMany(targetEntity: InvoiceItem::class, mappedBy: 'invoice', orphanRemoval: true)]
+    #[Groups(['invoice:read'])]
     private Collection $invoiceItems;
 
     public function __construct()
@@ -174,7 +185,6 @@ class Invoice
     public function removeInvoiceItem(InvoiceItem $invoiceItem): static
     {
         if ($this->invoiceItems->removeElement($invoiceItem)) {
-            // set the owning side to null (unless already changed)
             if ($invoiceItem->getInvoice() === $this) {
                 $invoiceItem->setInvoice(null);
             }
