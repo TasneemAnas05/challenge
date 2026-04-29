@@ -16,14 +16,14 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/invoices')]
 class InvoiceController extends AbstractController
 {
-    #[Route('', name: 'api_invoices_list', methods: ['GET'])]
+    #[Route('', name: 'api_invoices_index', methods: ['GET'])]
     public function index(InvoiceRepository $repository): JsonResponse
     {
         $invoices = $repository->findAll();
         return $this->json($invoices, 200, [], ['groups' => 'invoice:read']);
     }
 
-    #[Route('', name: 'api_invoices_create', methods: ['POST'])]
+    #[Route('', name: 'api_invoices_new', methods: ['POST'])]
     public function create(Request $request, EntityManagerInterface $em, ClientRepository $clientRepo): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
