@@ -210,40 +210,6 @@ export interface Client {
 ---
 
 
-##  Building for Production
-
-### Backend
-
-```bash
-cd backend
-composer install --no-dev
-php bin/console cache:clear --env=prod
-php bin/console doctrine:migrations:migrate --env=prod
-```
-
-### Frontend
-
-```bash
-cd frontend
-ng build --configuration production
-```
-
-The compiled Angular app will be in `dist/frontend/`.
-
----
-
-##  Docker Support
-
-A `docker-compose.yml` can be configured to run both services in containers:
-
-```bash
-docker-compose up --build
-```
-
-This ensures consistency across development and production environments.
-
----
-
 ## Documentation
 
 - [Symfony Documentation](https://symfony.com/doc/current/index.html)
