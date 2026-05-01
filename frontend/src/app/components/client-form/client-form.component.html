@@ -1,0 +1,50 @@
+<div class="max-w-2xl mx-auto py-10 px-6">
+  <div class="mb-8">
+    <h2 class="text-3xl font-bold text-gray-900">Add New Client</h2>
+    <p class="text-gray-500">Enter the details of your new corporate relationship.</p>
+  </div>
+
+  <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+    <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+        <input formControlName="name" type="text" 
+               class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-400 outline-none transition-all"
+               placeholder="e.g. Tasnim Alsasa">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Company Name</label>
+        <input formControlName="company" type="text" 
+               class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-400 outline-none transition-all"
+               placeholder="e.g. GDG ASU Branch">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+        <input formControlName="email" type="email" 
+               class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-400 outline-none transition-all"
+               placeholder="email@example.com">
+      </div>
+      <div>
+  <label class="block text-sm font-semibold text-gray-700 mb-2">Corporate Address</label>
+  <input formControlName="address" type="text" 
+         class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-400 outline-none transition-all"
+         placeholder="e.g. 123 Amman St.">
+</div>
+
+      <div class="flex items-center gap-4 pt-6">
+        <button type="submit" [disabled]="clientForm.invalid"
+                class="bg-[#22c55e] text-white px-10 py-4 rounded-2xl font-bold hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          Save Client
+        </button>
+        <button type="button" routerLink="/clients" 
+                class="px-10 py-4 text-gray-500 font-semibold hover:bg-gray-50 rounded-2xl transition-colors">
+          Cancel
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
