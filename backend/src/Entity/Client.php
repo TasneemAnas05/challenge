@@ -31,6 +31,7 @@ class Client
     private ?string $company = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['client:read', 'client:write'])]
     private ?string $address = null;
 
     /**
@@ -90,7 +91,7 @@ class Client
         return $this->address;
     }
 
-    public function setAddress(?string $address): static
+    public function setAddress(?string $address): self
     {
         $this->address = $address;
 

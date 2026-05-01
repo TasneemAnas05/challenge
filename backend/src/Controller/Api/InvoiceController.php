@@ -20,7 +20,23 @@ class InvoiceController extends AbstractController
     public function index(InvoiceRepository $repository): JsonResponse
     {
         $invoices = $repository->findAll();
-        return $this->json($invoices, 200, [], ['groups' => 'invoice:read']);
+        
+        $data = array_map(function ($invoice) {
+            return [
+                'id' => $invoice->getId(),
+                'invoiceNumber' => $invoice->getInvoiceNumber(),
+                'invoiceDate' => $invoice->getInvoiceDate()?->format('Y-m-d'),
+                'dueDate' => $invoice->getDueDate()?->format('Y-m-d'),
+                'status' => $invoice->getStatus(),
+                'totalAmountGross' => $invoice->getTotalAmountGross(),
+                'client' => $invoice->getClient() ? [
+                    'id' => $invoice->getClient()->getId(),
+                    'name' => $invoice->getClient()->getName()
+                ] : null
+            ];
+        }, $invoices);
+
+        return $this->json($data, 200);
     }
 
     #[Route('', name: 'api_invoices_new', methods: ['POST'])]
@@ -28,10 +44,18 @@ class InvoiceController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
+        if (empty($data['invoiceNumber']) || empty($data['clientId'])) {
+            return $this->json(['error' => 'Missing required fields (invoiceNumber, clientId)'], 400);
+        }
+
         $invoice = new Invoice();
         $invoice->setInvoiceNumber($data['invoiceNumber']);
-        $invoice->setInvoiceDate(new DateTimeImmutable($data['invoiceDate']));
-        $invoice->setDueDate(new DateTimeImmutable($data['dueDate']));
+        try {
+            $invoice->setInvoiceDate(new DateTimeImmutable($data['invoiceDate'] ?? 'now'));
+            $invoice->setDueDate(new DateTimeImmutable($data['dueDate'] ?? 'now'));
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'Invalid date format provided'], 400);
+        }
         $invoice->setStatus($data['status'] ?? 'Draft');
 
         $client = $clientRepo->find($data['clientId']);
@@ -43,19 +67,27 @@ class InvoiceController extends AbstractController
         $totalAmountNet = 0;
         $totalAmountVat = 0;
 
-        foreach ($data['items'] as $itemData) {
+        $items = $data['items'] ?? [];
+        foreach ($items as $itemData) {
             $item = new InvoiceItem();
-            $item->setDescription($itemData['description']);
-            $item->setQuantity($itemData['qty']);
-            $item->setUnitPrice($itemData['rate']);
+            $item->setDescription($itemData['description'] ?? '');
+            
+            $quantity = $itemData['quantity'] ?? 1;
+            $unitPrice = $itemData['unitPrice'] ?? 0;
+
+            $item->setQuantity((string) $quantity);
+            $item->setUnitPrice((string) $unitPrice);
 
             $vatRate = $itemData['vatRate'] ?? 0;
-            $item->setVatRate($vatRate);
+            $item->setVatRate((string) $vatRate);
 
-            $totalLineNet = $itemData['qty'] * $itemData['rate'];
+            $totalLineNet = $quantity * $unitPrice;
             $item->setTotalLineNet((string) $totalLineNet);
 
             $invoice->addInvoiceItem($item);
+            
+            $item->setInvoice($invoice); 
+            $em->persist($item);
 
             $totalAmountNet += $totalLineNet;
             $totalAmountVat += $totalLineNet * ($vatRate / 100);
@@ -68,6 +100,33 @@ class InvoiceController extends AbstractController
         $em->persist($invoice);
         $em->flush();
 
-        return $this->json($invoice, 201, [], ['groups' => 'invoice:read']);
+        $responseData = [
+            'id' => $invoice->getId(),
+            'invoiceNumber' => $invoice->getInvoiceNumber(),
+            'invoiceDate' => $invoice->getInvoiceDate()?->format('Y-m-d'),
+            'dueDate' => $invoice->getDueDate()?->format('Y-m-d'),
+            'status' => $invoice->getStatus(),
+            'totalAmountGross' => $invoice->getTotalAmountGross(),
+            'client' => $invoice->getClient() ? [
+                'id' => $invoice->getClient()->getId(),
+                'name' => $invoice->getClient()->getName()
+            ] : null
+        ];
+
+        return $this->json($responseData, 201);
+    }
+
+    #[Route('/{id}', name: 'api_invoices_delete', methods: ['DELETE'])]
+    public function delete(int $id, InvoiceRepository $repository, EntityManagerInterface $em): JsonResponse
+    {
+        $invoice = $repository->find($id);
+        if (!$invoice) {
+            return $this->json(['error' => 'Invoice not found'], 404);
+        }
+
+        $em->remove($invoice);
+        $em->flush();
+
+        return $this->json(null, 204);
     }
 }

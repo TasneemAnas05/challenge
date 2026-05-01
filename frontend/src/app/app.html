@@ -1,10 +1,7 @@
-<h1>Telution Integration Test</h1>
-
-<div *ngIf="summary">
-  <p><strong>Invoice Count:</strong> {{ summary.invoiceCount }}</p>
-  <p><strong>Total Outstanding:</strong> {{ summary.totalOutstanding }}</p>
-</div>
-
-<div *ngIf="!summary">
-  <p>Loading data from Port 8000...</p>
+<div class="flex h-screen bg-gray-50">
+  <app-sidebar></app-sidebar>
+  
+  <main class="flex-1 overflow-y-auto p-10">
+    <router-outlet></router-outlet>
+  </main>
 </div>
