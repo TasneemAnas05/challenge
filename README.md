@@ -209,19 +209,6 @@ export interface Client {
 
 ---
 
-##  Running Tests
-
-```bash
-# Backend (PHPUnit)
-cd backend
-php bin/phpunit
-
-# Frontend (Jasmine)
-cd frontend
-ng test
-```
-
----
 
 ##  Building for Production
 
